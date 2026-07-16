@@ -66,17 +66,19 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     return {
 
-    "filename": file.filename,
+        "filename": file.filename,
 
-    "characters": len(text),
+        "characters": len(text),
 
-    "chunks": len(chunks),
+        "chunks": len(chunks),
 
-    "embedding_dimension":
-        len(embeddings[0]),    
-    "database_records":
-        total_chunks()
-}
+        "embedding_dimension": len(embeddings[0]),
+
+        "database_records": total_chunks(),
+
+        "model": "Gemini 2.5 Flash"
+
+    }
 
 class SearchRequest(BaseModel):
     question: str

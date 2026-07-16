@@ -2,7 +2,17 @@ import { useState } from "react";
 import API from "../services/api";
 import { FaUpload } from "react-icons/fa";
 
-function Upload() {
+function Upload({
+
+uploadedFiles,
+
+setUploadedFiles,
+
+workspaceStats,
+
+setWorkspaceStats
+
+}) {
 
     const [message, setMessage] = useState("");
 
@@ -21,6 +31,36 @@ function Upload() {
             const res = await API.post("/upload", formData);
 
             setMessage(`✅ ${res.data.filename}`);
+            setUploadedFiles(
+
+            prev=>[
+
+            ...prev,
+
+            res.data.filename
+
+            ]
+
+            );
+            setWorkspaceStats({
+
+            papers:
+
+            uploadedFiles.length+1,
+
+            chunks:
+
+            res.data.database_records,
+
+            embedding:
+
+            `${res.data.embedding_dimension}D`,
+
+            model:
+
+            res.data.model
+
+            });
 
         } catch {
 

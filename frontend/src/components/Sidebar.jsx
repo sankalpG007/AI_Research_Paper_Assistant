@@ -1,7 +1,17 @@
 import Upload from "./Upload";
-import { FaDatabase } from "react-icons/fa";
+import { FaDatabase, FaFilePdf } from "react-icons/fa";
 
-function Sidebar() {
+function Sidebar({
+
+    uploadedFiles = [],
+
+    setUploadedFiles,
+
+    workspaceStats,
+
+    setWorkspaceStats
+
+}) {
 
     return (
 
@@ -25,7 +35,17 @@ function Sidebar() {
 
             <div className="px-8">
 
-                <Upload />
+                <Upload
+
+                uploadedFiles={uploadedFiles}
+
+                setUploadedFiles={setUploadedFiles}
+
+                workspaceStats={workspaceStats}
+
+                setWorkspaceStats={setWorkspaceStats}
+
+                />
 
             </div>
 
@@ -39,21 +59,65 @@ function Sidebar() {
 
                 </h2>
 
-                <div className="space-y-3">
+               {
 
-                    <div className="bg-slate-800 rounded-xl p-4 text-gray-300">
-                        Attention Is All You Need
+                    uploadedFiles.length===0
+
+                    ?
+
+                    <p className="text-gray-400 text-sm">
+
+                    No PDFs Uploaded
+
+                    </p>
+
+                    :
+
+                    uploadedFiles.map((file,index)=>(
+
+                    <div
+
+                    key={index}
+
+                    className="
+
+                    flex
+
+                    items-center
+
+                    gap-2
+
+                    bg-slate-800
+
+                    p-2
+
+                    rounded-lg
+
+                    "
+
+                    >
+
+                    <FaFilePdf
+
+                    className="text-red-500"
+
+                    />
+
+                    <p
+
+                    className="truncate"
+
+                    >
+
+                    {file}
+
+                    </p>
+
                     </div>
 
-                    <div className="bg-slate-800 rounded-xl p-4 text-gray-300">
-                        BERT
-                    </div>
+                    ))
 
-                    <div className="bg-slate-800 rounded-xl p-4 text-gray-300">
-                        GPT
-                    </div>
-
-                </div>
+                    }
 
             </div>
 
