@@ -4,53 +4,61 @@ import ChatMessage from "./ChatMessage";
 import EmptyState from "./EmptyState";
 import { askQuestion } from "../services/api";
 
-function ChatWindow() {
+function ChatWindow({ selectedPaper }) {
 
     const [messages, setMessages] = useState([]);
-    
     const [loading, setLoading] = useState(false);
 
-    async function sendQuestion(question){
+    async function sendQuestion(question) {
 
-        setMessages(prev=>[
+        // Show the user's message immediately
+        setMessages(prev => [
             ...prev,
             {
-                sender:"user",
-                message:question
+                sender: "user",
+                message: question
             }
         ]);
+
         setLoading(true);
-        try{
 
-            const res = await askQuestion(question);
+        try {
 
-            setMessages(prev=>[
+            // Send question + selected paper to backend
+            const res = await askQuestion(
+                question,
+                selectedPaper
+            );
+
+            // Add AI response
+            setMessages(prev => [
                 ...prev,
                 {
-                    sender:"assistant",
-                    message:res.data.answer
-                }
-            ]);
-            
-            setLoading(false);
-        }
-
-        catch(err){
-
-            setMessages(prev=>[
-                ...prev,
-                {
-                    sender:"assistant",
-                    message:"Something went wrong."
+                    sender: "assistant",
+                    message: res.data.answer,
+                    citations: res.data.citations || []
                 }
             ]);
 
+        } catch (err) {
+
+            setMessages(prev => [
+                ...prev,
+                {
+                    sender: "assistant",
+                    message: "❌ Something went wrong."
+                }
+            ]);
+
+        } finally {
+
             setLoading(false);
+
         }
 
     }
 
-    return(
+    return (
 
         <div className="flex flex-col h-full">
 
@@ -58,59 +66,61 @@ function ChatWindow() {
 
                 {
 
-    messages.length===0
+                    messages.length === 0
 
-    ?
+                    ?
 
-    <EmptyState/>
+                    <EmptyState />
 
-    :
+                    :
 
-    <>
+                    <>
 
-        {
+                        {
 
-            messages.map((msg,index)=>(
+                            messages.map((msg, index) => (
 
-                <ChatMessage
+                                <ChatMessage
 
-                    key={index}
+                                    key={index}
 
-                    sender={msg.sender}
+                                    sender={msg.sender}
 
-                    message={msg.message}
+                                    message={msg.message}
 
-                />
+                                    citations={msg.citations}
 
-            ))
+                                />
 
-        }
+                            ))
 
-        {
+                        }
 
-            loading && (
+                        {
 
-                <div className="flex justify-start mt-4">
+                            loading && (
 
-                    <div className="bg-slate-800 rounded-2xl px-6 py-4 shadow-lg">
+                                <div className="flex justify-start mt-4">
 
-                        <p className="text-gray-300">
+                                    <div className="bg-slate-800 rounded-2xl px-6 py-4 shadow-lg">
 
-                            🤖 Thinking...
+                                        <p className="text-gray-300">
 
-                        </p>
+                                            🤖 Thinking...
 
-                    </div>
+                                        </p>
 
-                </div>
+                                    </div>
 
-            )
+                                </div>
 
-        }
+                            )
 
-    </>
+                        }
 
-}
+                    </>
+
+                }
 
             </div>
 
@@ -123,8 +133,6 @@ function ChatWindow() {
         </div>
 
     );
-
-
 
 }
 

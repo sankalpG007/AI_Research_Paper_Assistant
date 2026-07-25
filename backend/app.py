@@ -3,16 +3,22 @@ from chunker import create_chunks
 from embedding import generate_embeddings
 import shutil
 import os
-import uuid
 from prompt_builder import build_prompt
 from generator import generate_answer
-from vector_db import store_chunks
 from loader import extract_text
-from vector_db import total_chunks
 from retriever import retrieve
 from fastapi import Body
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
+from vector_db import (
+    store_chunks,
+    total_chunks,
+    save_paper_metadata,
+    get_all_papers,
+    delete_paper
+)
+
 
 app = FastAPI()
 
@@ -34,8 +40,14 @@ UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.post("/upload")
 
+
+@app.get("/papers")
+async def papers():
+    return get_all_papers()
+
+
+@app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
 
     file_path = os.path.join(
@@ -64,6 +76,21 @@ async def upload_pdf(file: UploadFile = File(...)):
     file.filename
     )
 
+
+    save_paper_metadata(
+
+    filename=file.filename,
+
+    characters=len(text),
+
+    chunks=len(chunks),
+
+    embedding_dimension=len(embeddings[0]),
+
+    model="MiniLM + Gemini 2.5 Flash"
+
+)
+
     return {
 
         "filename": file.filename,
@@ -76,17 +103,24 @@ async def upload_pdf(file: UploadFile = File(...)):
 
         "database_records": total_chunks(),
 
-        "model": "Gemini 2.5 Flash"
+        "model": "MiniLM + Gemini 2.5 Flash"
 
     }
 
 class SearchRequest(BaseModel):
     question: str
+    paper: Optional[str] = None
 
 @app.post("/search")
 async def search(data: SearchRequest):
 
-    results = retrieve(data.question)
+    results = retrieve(
+
+    data.question,
+
+    paper=data.paper
+
+)
 
     contexts = results["documents"][0]
 
@@ -110,10 +144,48 @@ async def search(data: SearchRequest):
 
     print("=" * 60)
 
+    citations = []
+
+    for i in range(len(results["documents"][0])):
+
+        citations.append({
+
+    "text": results["documents"][0][i][:250],
+
+    "source": results["metadatas"][0][i]["source"],
+
+    "chunk": results["metadatas"][0][i]["chunk"],
+
+    "score": round(
+        (1-results["distances"][0][i])*100,
+        1
+    )
+
+})
+
     return {
+
         "question": data.question,
+
         "answer": answer,
-        "sources": results["metadatas"][0],
-        "scores": results["distances"][0]
+
+        "citations": citations
+
     }
-    
+
+class DeletePaperRequest(BaseModel):
+    filename: str
+    @app.delete("/paper")
+
+    async def delete_uploaded_paper(data: DeletePaperRequest):
+
+        delete_paper(data.filename)
+
+        return {
+
+            "success": True,
+
+            "message": f"{data.filename} deleted successfully."
+
+        } 
+        

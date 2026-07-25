@@ -31,36 +31,46 @@ setWorkspaceStats
             const res = await API.post("/upload", formData);
 
             setMessage(`✅ ${res.data.filename}`);
-            setUploadedFiles(
+setUploadedFiles(prev => {
 
-            prev=>[
+    const exists = prev.find(
+        paper => paper.filename === res.data.filename
+    );
 
-            ...prev,
+    if (exists) return prev;
 
-            res.data.filename
+    return [
 
-            ]
+        ...prev,
 
-            );
-            setWorkspaceStats({
+        {
 
-            papers:
+            filename: res.data.filename,
 
-            uploadedFiles.length+1,
+            chunks: res.data.chunks,
 
-            chunks:
+            characters: res.data.characters,
 
-            res.data.database_records,
+            embedding_dimension: res.data.embedding_dimension,
 
-            embedding:
+            model: res.data.model
 
-            `${res.data.embedding_dimension}D`,
+        }
 
-            model:
+    ];
 
-            res.data.model
+});
+            setWorkspaceStats(prev => ({
 
-            });
+    papers: prev.papers + 1,
+
+    chunks: res.data.database_records,
+
+    embedding: `${res.data.embedding_dimension}D`,
+
+    model: res.data.model
+
+}));
 
         } catch {
 

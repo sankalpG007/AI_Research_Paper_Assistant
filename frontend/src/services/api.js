@@ -7,9 +7,20 @@ const API = axios.create({
 export const uploadPDF = (formData) =>
     API.post("/upload", formData);
 
-export const askQuestion = (question) =>
+export const askQuestion = (question, paper = null) =>
     API.post("/search", {
-        question
+        question,
+        paper
+    });
+
+export const getPapers = () =>
+    API.get("/papers");
+
+export const deletePaper = (filename) =>
+    API.delete("/paper", {
+        data: {
+            filename
+        }
     });
 
 export default API;
