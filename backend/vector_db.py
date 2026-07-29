@@ -64,28 +64,18 @@ def save_paper_metadata(
 ):
 
     papers_collection.add(
-
-        ids=[str(uuid.uuid4())],
-
-        documents=[filename],
-
-        metadatas=[{
-
-            "filename": filename,
-
-            "characters": characters,
-
-            "chunks": chunks,
-
-            "embedding_dimension": embedding_dimension,
-
-            "model": model,
-
-            "uploaded_at": datetime.now().strftime("%d %b %Y %H:%M")
-
-        }]
-
-    )
+    ids=[str(uuid.uuid4())],
+    documents=["paper_metadata"],
+    embeddings=[[0.0] * 384],
+    metadatas=[{
+        "filename": filename,
+        "characters": characters,
+        "chunks": chunks,
+        "embedding_dimension": embedding_dimension,
+        "model": model,
+        "uploaded_at": datetime.now().strftime("%d %b %Y %H:%M")
+    }]
+)
 
 
 def get_all_papers():
