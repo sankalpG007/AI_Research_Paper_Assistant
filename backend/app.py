@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File
 from chunker import create_chunks
 from embedding import generate_embeddings
@@ -9,7 +10,6 @@ from loader import extract_text
 from retriever import retrieve
 from fastapi import Body
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from vector_db import (
     store_chunks,
@@ -175,17 +175,15 @@ async def search(data: SearchRequest):
 
 class DeletePaperRequest(BaseModel):
     filename: str
-    @app.delete("/paper")
 
-    async def delete_uploaded_paper(data: DeletePaperRequest):
 
-        delete_paper(data.filename)
+@app.delete("/paper")
+async def delete_uploaded_paper(data: DeletePaperRequest):
 
-        return {
+    delete_paper(data.filename)
 
-            "success": True,
-
-            "message": f"{data.filename} deleted successfully."
-
-        } 
+    return {
+        "success": True,
+        "message": f"{data.filename} deleted successfully."
+    } 
         
