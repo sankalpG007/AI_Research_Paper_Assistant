@@ -26,7 +26,10 @@ app.add_middleware(
 
     CORSMiddleware,
 
-    allow_origins=["http://localhost:5173"],
+     allow_origins=[
+        "http://localhost:5173",
+        "https://your-vercel-app.vercel.app",
+    ],
 
     allow_credentials=True,
 
@@ -40,7 +43,12 @@ UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
+@app.get("/")
+async def root():
+    return {
+        "status": "running",
+        "message": "AI Research Assistant Backend"
+    }
 
 @app.get("/papers")
 async def papers():
