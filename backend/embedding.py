@@ -1,15 +1,9 @@
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
+import numpy as np
 
-# Load model only once
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
+# Load embedding model once
+model = TextEmbedding()
 
 def generate_embeddings(chunks):
-
-    embeddings = model.encode(
-        chunks,
-        convert_to_numpy=True
-    )
-
-    return embeddings
+    embeddings = list(model.embed(chunks))
+    return np.array(embeddings)
