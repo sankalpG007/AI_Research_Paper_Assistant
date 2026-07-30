@@ -3,9 +3,11 @@ from datetime import datetime
 
 import chromadb
 
-client = chromadb.PersistentClient(
-    path="chroma_db"
-)
+import os
+
+DB_PATH = os.getenv("CHROMA_DB_PATH", "chroma_db")
+
+client = chromadb.PersistentClient(path=DB_PATH)
 
 # -----------------------------
 # Collection for chunks
