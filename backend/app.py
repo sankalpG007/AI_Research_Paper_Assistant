@@ -55,64 +55,46 @@ async def papers():
 
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
+    print("1")
 
-    file_path = os.path.join(
-        UPLOAD_FOLDER,
-        file.filename
-    )
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
     with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-        shutil.copyfileobj(
-            file.file,
-            buffer
-        )
-        print(file_path)
-        print(os.path.getsize(file_path))
+    print("2")
 
     text = extract_text(file_path)
 
+    print("3")
+
     chunks = create_chunks(text)
+
+    print("4")
+
     embeddings = generate_embeddings(chunks)
 
+    print("5")
 
     store_chunks(
-    chunks,
-    embeddings,
-    file.filename
+        chunks,
+        embeddings,
+        file.filename
     )
 
+    print("6")
 
     save_paper_metadata(
+        filename=file.filename,
+        characters=len(text),
+        chunks=len(chunks),
+        embedding_dimension=len(embeddings[0]),
+        model="MiniLM + Gemini 2.5 Flash"
+    )
 
-    filename=file.filename,
+    print("7")
 
-    characters=len(text),
-
-    chunks=len(chunks),
-
-    embedding_dimension=len(embeddings[0]),
-
-    model="MiniLM + Gemini 2.5 Flash"
-
-)
-
-    return {
-
-        "filename": file.filename,
-
-        "characters": len(text),
-
-        "chunks": len(chunks),
-
-        "embedding_dimension": len(embeddings[0]),
-
-        "database_records": total_chunks(),
-
-        "model": "MiniLM + Gemini 2.5 Flash"
-
-    }
-
+    return {"success": True}
 class SearchRequest(BaseModel):
     question: str
     paper: Optional[str] = None
