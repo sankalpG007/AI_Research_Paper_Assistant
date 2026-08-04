@@ -1,19 +1,15 @@
 from embedding import model
 from vector_db import search_chunks
+import numpy as np
 
 
-def retrieve(query, paper=None, n_results=3):
+def retrieve(query, paper=None):
+    # FastEmbed returns a generator
+    query_embedding = list(model.embed([query]))[0]
 
-    query_embedding = model.encode(query)
+    query_embedding = np.array(query_embedding)
 
-    results = search_chunks(
-
+    return search_chunks(
         query_embedding,
-
-        paper=paper,
-
-        n_results=n_results
-
+        paper
     )
-
-    return results
