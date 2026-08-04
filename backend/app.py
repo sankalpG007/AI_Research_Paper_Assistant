@@ -23,17 +23,18 @@ from vector_db import (
 app = FastAPI()
 
 app.add_middleware(
-
     CORSMiddleware,
 
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://ai-research-paper-assistant-eta.vercel.app",
+    ],
 
     allow_credentials=True,
 
     allow_methods=["*"],
 
-    allow_headers=["*"]
-
+    allow_headers=["*"],
 )
 
 UPLOAD_FOLDER = "uploads"
