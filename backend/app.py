@@ -53,52 +53,56 @@ async def papers():
     return get_all_papers()
 
 
+import traceback
+
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    print("1")
+    try:
+        print("1")
 
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    print("2")
+        print("2")
 
-    text = extract_text(file_path)
+        text = extract_text(file_path)
 
-    print("3")
+        print("3")
 
-    chunks = create_chunks(text)
+        chunks = create_chunks(text)
 
-    print("4")
+        print("4")
 
-    embeddings = generate_embeddings(chunks)
+        embeddings = generate_embeddings(chunks)
 
-    print("5")
+        print("5")
 
-    store_chunks(
-        chunks,
-        embeddings,
-        file.filename
-    )
+        store_chunks(
+            chunks,
+            embeddings,
+            file.filename
+        )
 
-    print("6")
+        print("6")
 
-    save_paper_metadata(
-        filename=file.filename,
-        characters=len(text),
-        chunks=len(chunks),
-        embedding_dimension=len(embeddings[0]),
-        model="MiniLM + Gemini 2.5 Flash"
-    )
+        save_paper_metadata(
+            filename=file.filename,
+            characters=len(text),
+            chunks=len(chunks),
+            embedding_dimension=len(embeddings[0]),
+            model="MiniLM + Gemini 2.5 Flash"
+        )
 
-    print("7")
+        print("7")
 
-    return {"success": True}
-class SearchRequest(BaseModel):
-    question: str
-    paper: Optional[str] = None
+        return {"success": True}
 
+    except Exception as e:
+        print("UPLOAD ERROR")
+        traceback.print_exc()
+        return {"error": str(e)}
 @app.post("/search")
 async def search(data: SearchRequest):
 
