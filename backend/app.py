@@ -55,59 +55,18 @@ async def papers():
 
 import traceback
 
+from fastapi import UploadFile, File
+
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    try:
-        print("1")
-
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        print("2")
-
-        text = extract_text(file_path)
-
-        print("3")
-
-        chunks = create_chunks(text)
-
-        print("4")
-
-        embeddings = generate_embeddings(chunks)
-
-        print("5")
-
-        store_chunks(
-            chunks,
-            embeddings,
-            file.filename
-        )
-
-        print("6")
-
-        save_paper_metadata(
-            filename=file.filename,
-            characters=len(text),
-            chunks=len(chunks),
-            embedding_dimension=len(embeddings[0]),
-            model="MiniLM + Gemini 2.5 Flash"
-        )
-
-        print("7")
-
-        return {"success": True}
-
-    except Exception as e:
-        print("UPLOAD ERROR")
-        traceback.print_exc()
-        return {"error": str(e)}
-
+    return {
+        "filename": file.filename,
+        "size": file.size if hasattr(file, "size") else "unknown"
+    }
 class SearchRequest(BaseModel):
     question: str
     paper: Optional[str] = None
-        
+
 @app.post("/search")
 async def search(data: SearchRequest):
 
