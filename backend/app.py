@@ -103,6 +103,11 @@ async def upload_pdf(file: UploadFile = File(...)):
         print("UPLOAD ERROR")
         traceback.print_exc()
         return {"error": str(e)}
+
+class SearchRequest(BaseModel):
+    question: str
+    paper: Optional[str] = None
+        
 @app.post("/search")
 async def search(data: SearchRequest):
 
